@@ -1,0 +1,31 @@
+{
+  "name": "apka-dla-szymona",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "build": "rm -rf dist && pkg .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "docxtemplater": "^3.34.0",
+    "express": "^4.18.2",
+    "pizzip": "^3.1.4"
+  },
+  "devDependencies": {
+    "pkg": "^5.8.0"
+  },
+  "bin": "index.js",
+  "pkg": {
+    "scripts": "index.js",
+    "assets": "template.docx",
+    "targets": [
+      "node16-macos-arm64",
+      "node16-win-arm64"
+    ],
+    "outputPath": "dist"
+  }
+}
