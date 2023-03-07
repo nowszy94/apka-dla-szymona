@@ -13,15 +13,23 @@ app.get('/', (req, res) => {
 });
 
 app.get('/generate', (req, res) => {
-    const filename = handleDocumentCreation(req.query.input)
+    const { input, loadDate, unloadDate } = req.query;
+
+    const filename = handleDocumentCreation(input, loadDate, unloadDate)
     res.download(filename);
 });
 
 app.listen(port, () => {
     console.log(`Serwer odpalony pod http://localhost:${port}`)
-})
+});
 
-const handleDocumentCreation = (input) => {
+const mapDate = (date) => {
+    const [year, month, day] = date.split('-');
+
+    return `${day}/${month}/${year}`
+}
+
+const handleDocumentCreation = (input, loadDate, unloadDate) => {
     const extractUserData = (copiedText) => {
         const regex = new RegExp(/(?<address>.*)NIP: (?<nip>\w*) (?<name>.*)[(].*tel.*[)] ?(?<phonenumber>\d*)/);
         const noPhoneWorkaroundRegex = new RegExp(/(?<address>.*)NIP: (?<nip>\w*) (?<name>.*)[(].*tel.*[)]? ?(?<phonenumber>\d*)/);
@@ -32,7 +40,9 @@ const handleDocumentCreation = (input) => {
             address: result.groups.address.trim(),
             nip: result.groups.nip,
             name: result.groups.name.trim(),
-            phoneNumber: result.groups.phonenumber
+            phoneNumber: result.groups.phonenumber,
+            loadDate: mapDate(loadDate),
+            unloadDate: mapDate(unloadDate),
         }
     }
 

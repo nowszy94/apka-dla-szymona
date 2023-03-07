@@ -1,14 +1,37 @@
 <html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
 <body>
 <form id="formId" action="/generate">
     <label for="input-textarea">Wklej dane przewoźnika</label>
     <br />
-    <textarea id="input-textarea" autofocus rows="6" name="input"></textarea>
+    <textarea id="input-textarea" autofocus rows="6" name="input" required></textarea>
     <br/>
+
+    <label for="input-loadDate">Data załadunku (domyślnie: dziś)</label>
+    <br/>
+    <input type="date" name="loadDate" id="input-loadDate" required>
+    <br/>
+
+    <label for="input-unloadDate">Data rozładunku (domyślnie: jutro)</label>
+    <br/>
+    <input type="date" name="unloadDate" id="input-unloadDate" required>
+    <br/>
+
     <input type="submit" value="wyslij">
 </form>
 
 <script>
+    window.onload = () => {
+        const today = new Date();
+
+        const tomorrow =  new Date();
+        tomorrow.setDate(today.getDate() + 1)
+
+        document.getElementById('input-loadDate').value = today.toISOString().substring(0,10);
+        document.getElementById('input-unloadDate').value = tomorrow.toISOString().substring(0,10);
+    };
 </script>
 </body>
 </html>
