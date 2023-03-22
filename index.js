@@ -13,9 +13,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/generate', (req, res) => {
-    const { input, loadDate, unloadDate } = req.query;
-
-    const filename = handleDocumentCreation(input, loadDate, unloadDate)
+    const filename = handleDocumentCreation(req.query)
     res.download(filename);
 });
 
@@ -29,22 +27,26 @@ const mapDate = (date) => {
     return `${day}/${month}/${year}`
 }
 
-const handleDocumentCreation = (input, loadDate, unloadDate) => {
-    const extractUserData = (copiedText) => {
-        const regex = new RegExp(/(?<address>.*)NIP: (?<nip>\w*) (?<name>.*)[(].*tel.*[)] ?(?<phonenumber>\d*)/);
-        const noPhoneWorkaroundRegex = new RegExp(/(?<address>.*)NIP: (?<nip>\w*) (?<name>.*)[(].*tel.*[)]? ?(?<phonenumber>\d*)/);
+const extractUserData = (copiedText) => {
+    const regex = new RegExp(/(?<address>.*)NIP: (?<nip>\w*) (?<name>.*)[(].*tel.*[)] ?(?<phonenumber>\d*)/);
+    const noPhoneWorkaroundRegex = new RegExp(/(?<address>.*)NIP: (?<nip>\w*) (?<name>.*)[(].*tel.*[)]? ?(?<phonenumber>\d*)/);
 
-        const result = copiedText.match(regex) ? copiedText.match(regex) : copiedText.match(noPhoneWorkaroundRegex);
+    const result = copiedText.match(regex) ? copiedText.match(regex) : copiedText.match(noPhoneWorkaroundRegex);
 
-        return {
-            address: result.groups.address.trim(),
-            nip: result.groups.nip,
-            name: result.groups.name.trim(),
-            phoneNumber: result.groups.phonenumber,
-            loadDate: mapDate(loadDate),
-            unloadDate: mapDate(unloadDate),
-        }
+    return {
+        address: result.groups.address.trim(),
+        nip: result.groups.nip,
+        name: result.groups.name.trim(),
+        phoneNumber: result.groups.phonenumber
     }
+}
+
+const createOrderNumber = (orderNumberId, orderNumberMonth, orderNumberInitials) => `${orderNumberId}${orderNumberMonth}${orderNumberInitials}`;
+
+const generateRate = (netRate, netRateCurrency) => `${netRate} ${netRateCurrency === 'EUR' ? 'euro all in' : 'PLN all in'}`;
+
+const handleDocumentCreation = (requestQuery) => {
+    const { input, loadDate, unloadDate, orderNumberId, orderNumberMonth, orderNumberInitials, registrationPlate, typeOfGoods, weight, netRate, netRateCurrency, payDays } = requestQuery;
 
     const TEMPLATE_NAME = 'template.docx';
     const GENERATED_FOLDER_NAME = 'generated';
@@ -56,7 +58,7 @@ const handleDocumentCreation = (input, loadDate, unloadDate) => {
         }
     }
 
-    const generateDocument = (user) => {
+    const generateDocument = (data) => {
         const templatePath = path.resolve(__dirname, TEMPLATE_NAME);
         const content = fs.readFileSync(templatePath, 'binary');
 
@@ -66,7 +68,7 @@ const handleDocumentCreation = (input, loadDate, unloadDate) => {
             linebreaks: true,
         });
 
-        doc.render(user); // this changes placeholders with actual data
+        doc.render(data); // this changes placeholders with actual data
 
         const buf = doc.getZip().generate({
             type: 'nodebuffer',
@@ -75,7 +77,7 @@ const handleDocumentCreation = (input, loadDate, unloadDate) => {
 
 
         createDocumentsDirectoryIfNeeded();
-        const fileName = path.resolve(__dirname, GENERATED_FOLDER_NAME, `${user.name.replace(' ', '-')}.docx`);
+        const fileName = path.resolve(__dirname, GENERATED_FOLDER_NAME, `${data.user_name.replace(' ', '-')}.docx`);
         fs.writeFileSync(fileName, buf);
 
         return fileName;
@@ -85,7 +87,23 @@ const handleDocumentCreation = (input, loadDate, unloadDate) => {
     let fileName;
     try {
         const user = extractUserData(text);
-        fileName = generateDocument(user);
+        const data = {
+            user_address: user.address,
+            user_nip: user.nip,
+            user_name: user.name,
+            user_phoneNumber: user.phoneNumber,
+            order_loadDate: mapDate(loadDate),
+            order_unloadDate: mapDate(unloadDate),
+            order_orderNumber: createOrderNumber(orderNumberId, orderNumberMonth, orderNumberInitials),
+            order_registrationPlate: registrationPlate,
+            order_typeOfGoods: typeOfGoods.replaceAll('\r', ''),
+            order_weight: weight,
+            order_rate: generateRate(netRate, netRateCurrency),
+            order_payDays: `${payDays} dni`,
+        };
+
+        fileName = generateDocument(data);
+
         console.log('DONE');
         console.log('plik utworzony w ', fileName);
     } catch (e) {

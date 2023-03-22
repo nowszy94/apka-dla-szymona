@@ -1,22 +1,93 @@
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+    <style>
+        form label {
+            font-weight: bold;
+        }
+        .input-group {
+            margin-bottom: 8px;
+        }
+        .radio-group {
+            display: inline;
+        }
+        .order-number-field {
+            display: inline-block;
+        }
+    </style>
 </head>
 <body>
 <form id="formId" action="/generate">
-    <label for="input-textarea">Wklej dane przewoźnika</label>
-    <br />
-    <textarea id="input-textarea" autofocus rows="6" name="input" required></textarea>
-    <br/>
+    <div class="input-group">
+        <label for="input-textarea">Wklej dane przewoźnika</label>
+        <br/>
+        <textarea id="input-textarea" autofocus rows="6" name="input" required></textarea>
+    </div>
+    <div class="input-group">
+        <label for="input-loadDate">Data załadunku (domyślnie: dziś)</label>
+        <br/>
+        <input type="date" name="loadDate" id="input-loadDate" required>
+    </div>
+    <div class="input-group">
+        <label for="input-unloadDate">Data rozładunku (domyślnie: jutro)</label>
+        <br/>
+        <input type="date" name="unloadDate" id="input-unloadDate" required>
+    </div>
+    <div class="input-group">
+        <label for="input-orderNumberId">Numer Zlecenia</label>
+        <br/>
+        <div class="order-number-field">
+            <label for="input-orderNumberId">Numer</label>
+            <br/>
+            <input type="text" name="orderNumberId" id="input-orderNumberId">
+        </div>
+        <div class="order-number-field">
+            <label for="input-orderNumberMonth">Miesiąc</label>
+            <br/>
+            <input type="text" name="orderNumberMonth" id="input-orderNumberMonth">
+        </div>
+        <div class="order-number-field">
+            <label for="input-orderNumberInitials">Inicjały</label>
+            <br/>
+            <input type="text" name="orderNumberInitials" id="input-orderNumberInitials" value="MH">
+        </div>
+    </div>
 
-    <label for="input-loadDate">Data załadunku (domyślnie: dziś)</label>
-    <br/>
-    <input type="date" name="loadDate" id="input-loadDate" required>
-    <br/>
+    <div class="input-group">
+        <label for="input-registrationPlate">Numer Rejestracyjny</label>
+        <br/>
+        <input type="text" name="registrationPlate" id="input-registrationPlate">
+    </div>
+    <div class="input-group">
+        <label for="input-typeOfGoods">Rodzaj towaru</label>
+        <br/>
+        <textarea id="input-typeOfGoods" name="typeOfGoods" rows="5" cols="33"></textarea>
+    </div>
+    <div class="input-group">
+        <label for="input-weight">Waga</label>
+        <br/>
+        <input type="text" name="weight" id="input-weight">
+    </div>
+    <div class="input-group">
+        <label for="input-netRate">Frach Netto</label>
+        <br/>
+        <input type="text" name="netRate" id="input-netRate">
+        <div class="radio-group">
+            <input type="radio" id="netRateEur" name="netRateCurrency" value="EUR" checked>
+            <label for="netRateEur">EUR</label>
+        </div>
+        <div class="radio-group">
+            <input type="radio" id="netRatePln" name="netRateCurrency" value="PLN">
+            <label for="netRatePln">PLN</label>
+        </div>
+    </div>
+    <div class="input-group">
+        <label for="input-payDays">Data platności (w dniach)</label>
+        <br/>
+        <input type="text" name="payDays" id="input-payDays" value="60">
+    </div>
 
-    <label for="input-unloadDate">Data rozładunku (domyślnie: jutro)</label>
-    <br/>
-    <input type="date" name="unloadDate" id="input-unloadDate" required>
     <br/>
 
     <input type="submit" value="wyslij">
@@ -26,11 +97,14 @@
     window.onload = () => {
         const today = new Date();
 
-        const tomorrow =  new Date();
+        const tomorrow = new Date();
         tomorrow.setDate(today.getDate() + 1)
 
-        document.getElementById('input-loadDate').value = today.toISOString().substring(0,10);
-        document.getElementById('input-unloadDate').value = tomorrow.toISOString().substring(0,10);
+        const todaysMonth = today.getMonth() + 1
+
+        document.getElementById('input-loadDate').value = today.toISOString().substring(0, 10);
+        document.getElementById('input-unloadDate').value = tomorrow.toISOString().substring(0, 10);
+        document.getElementById('input-orderNumberMonth').value = todaysMonth > 10 ? todaysMonth : `0${todaysMonth}`
     };
 </script>
 </body>
