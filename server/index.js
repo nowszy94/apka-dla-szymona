@@ -18,7 +18,7 @@ app.get('/generate', (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Serwer odpalony pod http://localhost:${port}`)
+    console.log(`Serwer odpalony pod http://localhost:${port}`);
 });
 
 const mapDate = (date) => {

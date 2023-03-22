@@ -2,30 +2,17 @@
   "name": "apka-dla-szymona",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "build": "rm -rf dist && pkg .",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "docxtemplater": "^3.34.0",
-    "express": "^4.18.2",
-    "pizzip": "^3.1.4"
-  },
-  "devDependencies": {
-    "pkg": "^5.8.0"
-  },
-  "bin": "index.js",
-  "pkg": {
-    "scripts": "index.js",
-    "assets": "template.docx",
-    "targets": [
-      "node16-macos-arm64",
-      "node16-win-arm64"
-    ],
-    "outputPath": "dist"
+    "install": "npm run install:client && npm run install:server",
+    "install:client": "cd client && npm install",
+    "install:server": "cd server && npm install",
+    "start": "node dist/index.js",
+    "build": "npm run build:modules && npm run build:modules:copy",
+    "build:modules": "npm run build:client && npm run build:server",
+    "build:client": "cd client && npm run build",
+    "build:server": "cd server && npm run build",
+    "build:modules:copy": "npm run build:client:copy && npm run build:server:copy",
+    "build:client:copy": "cp -a client/dist/. dist",
+    "build:server:copy": "cp -a server/dist/. dist"
   }
 }
